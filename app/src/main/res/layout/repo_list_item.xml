@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="@dimen/repo_item_padding">
+
+    <TextView
+        android:id="@+id/repo_list_item_title_text"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingBottom="10dp"
+        android:text="Title"
+        android:textColor="@color/colorPrimary"
+        android:textSize="24sp" />
+
+    <TextView
+        android:id="@+id/repo_list_item_description_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingBottom="10dp"
+        android:text="Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat." />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:paddingBottom="10dp">
+
+        <ImageView
+            android:id="@+id/repo_list_item_lang_img"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:paddingRight="5dp"
+            android:src="@android:drawable/ic_notification_overlay" />
+
+        <TextView
+            android:id="@+id/repo_list_item_language_text"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:paddingRight="15dp"
+            android:text="Language"
+            android:textAlignment="textStart" />
+
+        <ImageView
+            android:id="@+id/repo_list_item_watchers_img"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingRight="5dp"
+            app:srcCompat="@android:drawable/star_big_off" />
+
+        <TextView
+            android:id="@+id/repo_list_item_watchers_text"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:paddingRight="15dp"
+            android:text="2000" />
+
+        <ImageView
+            android:id="@+id/repo_list_item_forks_img"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:rotation="270"
+            app:srcCompat="?attr/actionModeShareDrawable" />
+
+        <TextView
+            android:id="@+id/repo_list_item_forks_text"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
+            android:paddingRight="15dp"
+            android:text="33" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/repo_list_item_update_date_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Updated at 12.12.2017" />
+
+</LinearLayout>
