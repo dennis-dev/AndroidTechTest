@@ -51,7 +51,7 @@ public class RepoListActivity extends AppCompatActivity {
                 layoutManager.getOrientation());
         repoList.addItemDecoration(dividerItemDecoration);
 
-        presenter.onCreate(this, adapter);
+        presenter.onCreate(this);
 
         this.registerReceiver(new BroadcastReceiver() {
             @Override
@@ -67,5 +67,9 @@ public class RepoListActivity extends AppCompatActivity {
         } else {
             connectionErrorText.setVisibility(View.GONE);
         }
+    }
+
+    public IRepoListPresenter getPresenter() {
+        return presenter;
     }
 }

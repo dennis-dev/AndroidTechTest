@@ -11,7 +11,9 @@ import com.techtest.githubrepobrowser.GitHubService;
 import com.techtest.githubrepobrowser.RepoListActivity;
 import com.techtest.githubrepobrowser.RepoListAdapter;
 import com.techtest.githubrepobrowser.entity.RepoInfo;
+import com.techtest.githubrepobrowser.events.ItemsLoadedEvent;
 import com.techtest.githubrepobrowser.events.NewPageRequiredEvent;
+import com.techtest.githubrepobrowser.events.ShowProgressEvent;
 import com.techtest.githubrepobrowser.presenter.IRepoListPresenter;
 
 import java.util.List;
@@ -27,28 +29,35 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RepoListPresenter implements IRepoListPresenter {
 
+    private static final String BASE_URL = "https://api.github.com";
+
     private int page = 1;
-    private RepoListAdapter adapter;
     private GitHubService service;
     private Realm mainThreadRealm;
     private RepoListActivity activity;
     private boolean stopRequests = false;
+    private Throwable lastError;
 
-    @UiThread
     @Override
-    public void onCreate(RepoListActivity activity, RepoListAdapter adapter) {
-        this.adapter = adapter;
-        this.activity = activity;
-
-        EventBusProvider.getEventBus().register(this);
-
+    public void setUrl(String url) {
+        page = 1;
         Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl("https://api.github.com")
+                .baseUrl(url)
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
         service = retrofit.create(GitHubService.class);
+    }
+
+    @UiThread
+    @Override
+    public void onCreate(RepoListActivity activity) {
+        this.activity = activity;
+
+        EventBusProvider.getEventBus().register(this);
+
+        setUrl(BASE_URL);
 
         mainThreadRealm = Realm.getDefaultInstance();
 
@@ -63,15 +72,19 @@ public class RepoListPresenter implements IRepoListPresenter {
     public void loadNextPage() {
         if (stopRequests) return;
 
-        adapter.showProgress(true);
+        showProgress(true);
         Observable<List<RepoInfo>> loadDataObserver = service.listRepos(page)
                 .subscribeOn(Schedulers.io())
                 .observeOn(Schedulers.computation())
                 .doOnEach(this::writeDataToCache)
                 .observeOn(AndroidSchedulers.mainThread())
-                .doFinally(() -> adapter.showProgress(false));
+                .doFinally(() -> showProgress(false));
 
         loadDataObserver.subscribe(this::displayList, this::onError);
+    }
+
+    private void showProgress(boolean show) {
+        EventBusProvider.getEventBus().post(new ShowProgressEvent(show));
     }
 
     @Override
@@ -113,18 +126,29 @@ public class RepoListPresenter implements IRepoListPresenter {
 
     private void displayList(List<RepoInfo> data) {
         if (!data.isEmpty()) {
-            adapter.addItems(data);
+            EventBusProvider.getEventBus().post(new ItemsLoadedEvent(data));
             ++page;
         } else {
             stopRequests = true;
         }
+        lastError = null;
     }
 
     private void onError(Throwable t) {
+        lastError = t;
         List<RepoInfo> cachedList = readDataFromCache(mainThreadRealm, page);
         if (cachedList != null && !cachedList.isEmpty()) {
             ++page;
-            adapter.addItems(cachedList);
+            EventBusProvider.getEventBus().post(new ItemsLoadedEvent(cachedList));
+        }
+    }
+
+    @Override
+    public String getLastError() {
+        if (lastError == null) {
+            return null;
+        } else {
+            return lastError.getMessage();
         }
     }
 }

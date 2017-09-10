@@ -6,8 +6,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.squareup.otto.Subscribe;
 import com.techtest.githubrepobrowser.entity.RepoInfo;
+import com.techtest.githubrepobrowser.events.ItemsLoadedEvent;
 import com.techtest.githubrepobrowser.events.NewPageRequiredEvent;
+import com.techtest.githubrepobrowser.events.ShowProgressEvent;
 
 import java.text.SimpleDateFormat;
 import java.util.Iterator;
@@ -25,6 +28,10 @@ public class RepoListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
     private List<RepoInfo> repoInfoList;
     private boolean showProgress = false;
+
+    {
+        EventBusProvider.getEventBus().register(this);
+    }
 
     RepoListAdapter() {
         this.repoInfoList = new LinkedList<>();
@@ -104,6 +111,16 @@ public class RepoListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public void showProgress(boolean enabled) {
         this.showProgress = enabled;
         this.notifyItemChanged(repoInfoList.size());
+    }
+
+    @Subscribe
+    public void onShowProgress(ShowProgressEvent event) {
+        this.showProgress(event.getShow());
+    }
+
+    @Subscribe
+    public void onNewItemsLoaded(ItemsLoadedEvent event) {
+        addItems(event.getItems());
     }
 
     static class ViewHolderItem extends RecyclerView.ViewHolder {
